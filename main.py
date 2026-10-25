@@ -10,12 +10,12 @@ stage = "menu"
 
 
 def draw():
-    if stage == "menu":
+    if (stage == "menu"):
         screen.clear()
-        screen.blit("bg_title_screen.jpg", (0, 0))
+        screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
         screen.draw.text("Crazy Halloween", (WIDTH/6, HEIGHT/4),
                             fontname="creepyhouse.otf", fontsize=120,
                             shadow=(2,2), scolor="#202020",
                             color="green", gcolor="orange",
                             align="center"
-                            )
+                            )   
