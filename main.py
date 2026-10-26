@@ -43,8 +43,8 @@ def update():
 
 
 def draw():
+    screen.clear()
     if stage == "menu":
-        screen.clear()
         screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
         flutuacao_y = math.sin(tempo_animacao) * 10
         screen.draw.text(
@@ -101,13 +101,31 @@ def draw():
                 scolor="#202020",
                 color="white",
             )
-    if stage == "game":
-        screen.clear()
+    if stage == "loading":
+        screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
+        flutuacao_y = math.sin(tempo_animacao) * 10
+        screen.draw.text(
+            "Saindo da tumba...",
+            midbottom=(WIDTH / 2, HEIGHT / 2 + flutuacao_y),
+            fontname="creepyhouse.otf",
+            fontsize=120,
+            shadow=(2, 2),
+            scolor="#202020",
+            color="green",
+            gcolor="orange",
+            align="center",
+        )
+    if stage == "running":
         music.stop()
 
 
+def run_game():
+    global stage
+    stage = "running"
+
+
 def on_mouse_down(pos, button):
-    global stage, is_music_on, title_box
+    global stage, is_music_on
 
     if stage == "menu":
         if button == mouse.LEFT:
@@ -115,7 +133,8 @@ def on_mouse_down(pos, button):
                 print("game")
                 if is_music_on:
                     sounds.click_a.play()
-                stage = "game"
+                stage = "loading"
+                clock.schedule(run_game, 3)
             if quit_box.collidepoint(pos):
                 print("exit")
                 if is_music_on:
