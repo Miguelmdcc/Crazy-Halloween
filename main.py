@@ -47,6 +47,8 @@ music.play("halloween_title_music")
 player = None
 tiles = []
 enemies = []
+collectables = []
+signexit = None
 
 
 def update(dt):
@@ -171,15 +173,18 @@ def draw():
             )
         if player:
             player.draw()
+            signexit.draw()
             for tile in tiles:
                 tile["actor"].draw()
             for enemy in enemies:
                 enemy.draw()
+            for coin in collectables:
+                coin.draw()
 
 
 def run_game():
-    global stage, tiles, player, enemies
-    tiles, player, enemies = build_fase(level)
+    global stage, tiles, player, enemies, collectables, signexit
+    tiles, player, enemies, collectables, signexit = build_fase(level)
     stage = "running"
     if is_music_on:
         music.play("halloween_level_music")

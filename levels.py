@@ -14,6 +14,8 @@ TILE_MAP = {
 }
 player = None
 enemies = []
+collectables = []
+signexit = None
 
 
 def build_fase(level):
@@ -55,10 +57,15 @@ def build_fase(level):
                     )
                     enemy.anchor = ("center", "bottom")
                     enemies.append(enemy)
+                elif col == "c":
+                    coin = Actor(tile_info["image"], topleft=(x, y))
+                    collectables.append(coin)
+                elif col == "f":
+                    signexit = Actor(tile_info["image"], topleft=(x, y))
                 else:
                     tile = {
                         "actor": Actor(tile_info["image"], topleft=(x, y)),
                     }
                     tiles.append(tile)
 
-    return tiles, player, enemies
+    return tiles, player, enemies, collectables, signexit

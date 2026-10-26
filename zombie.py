@@ -47,6 +47,10 @@ class Zombie(Actor):
 
     def walking(self, direction):
         self.x += self.x_speed * direction
+        if self.x >= 1280:
+            self.x = 1280
+        if self.x <= 0:
+            self.x = 0
         if self.direction != direction:
             self.direction = direction
             self.frame_index = 0
