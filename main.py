@@ -1,6 +1,7 @@
 import math
 from pgzero.builtins import Rect
 from levels import build_fase
+from zombie import Zombie
 
 # Imagem de background do menu de título fornecida por:
 # https://www.magnific.com/free-vector/flat-background-halloween-season_65581192.htm#fromView=search&page=1&position=4&uuid=1c3c5604-a239-43b6-b1a1-8816005d31ef&track=ais_hybrid&query=Halloween+graveyard+background
@@ -25,6 +26,8 @@ tempo_animacao = 0
 
 level = 0
 
+gravidade = 0.8
+
 play_box = Rect((0, 0), (400, 80))
 play_box.midbottom = (WIDTH / 2, HEIGHT / 2)
 play_box_color = GREEN
@@ -41,10 +44,31 @@ music_box = Rect(((WIDTH - 150, HEIGHT - 150)), (32, 32))
 
 music.play("halloween_title_music")
 
+player = None
+tiles = []
+enemies = []
 
-def update():
+
+def update(dt):
     global tempo_animacao
     tempo_animacao += 0.05
+    if stage == "running" and player:
+        walking = False
+        if keyboard.left:
+            player.walking(-1)
+            walking = True
+        if keyboard.right:
+            player.walking(1)
+            walking = True
+        if keyboard.up:
+            player.jump()
+        if not walking:
+            player.set_state("idle")
+        else:
+            player.set_state("walk")
+
+        player.update_animation(dt)
+        player.update_physics(tiles)
 
 
 def draw():
@@ -143,17 +167,17 @@ def draw():
                 color="white",
                 midbottom=(WIDTH / 2 + 40, HEIGHT / 4 + 100),
             )
-        # mostrar teclas para se mover
-        tiles, player, enemies = build_fase(level)
-        player.draw()
-        for tile in tiles:
-            tile["actor"].draw()
-        for enemy in enemies:
-            enemy.draw()
+        if player:
+            player.draw()
+            for tile in tiles:
+                tile["actor"].draw()
+            for enemy in enemies:
+                enemy.draw()
 
 
 def run_game():
-    global stage
+    global stage, tiles, player, enemies
+    tiles, player, enemies = build_fase(level)
     stage = "running"
     if is_music_on:
         music.play("halloween_level_music")

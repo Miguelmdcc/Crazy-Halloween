@@ -1,9 +1,10 @@
 from pgzero.builtins import Actor
+from zombie import Zombie
 
 TILE_SIZE = 70
 
 TILE_MAP = {
-    "p": {"image": "zombie/zombie_idle.png"},
+    "p": {"image": "zombie/idle/zombie_stand.png"},
     "#": {"image": "tiles/purplestonemid.png"},
     "*": {"image": "tiles/stonecenter.png"},
     "b": {"image": "tiles/box.png"},
@@ -45,10 +46,9 @@ def build_fase(level):
                 center_y = y + (TILE_SIZE)
 
                 if col == "p":
-                    player = Actor(
+                    player = Zombie(
                         tile_info["image"], midbottom=(center_x, center_y)
                     )
-                    player.anchor = ("center", "bottom")
                 elif col == "e":
                     enemy = Actor(
                         tile_info["image"], midbottom=(center_x, center_y)
