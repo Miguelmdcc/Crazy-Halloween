@@ -1,6 +1,6 @@
 import math
 # Imagem de background do menu de título fornecida por: https://www.magnific.com/free-vector/flat-background-halloween-season_65581192.htm#fromView=search&page=1&position=4&uuid=1c3c5604-a239-43b6-b1a1-8816005d31ef&track=ais_hybrid&query=Halloween+graveyard+background
-
+# Musicas utilizadas fornecidas por: https://pixabay.com/music/search/halloween%20cartoon/
 
 WIDTH = 1280
 HEIGHT = 720
@@ -19,13 +19,16 @@ tempo_animacao = 0
 play_box = Rect((0, 0), (400, 80))
 play_box.midbottom = (WIDTH/2, HEIGHT/2)
 play_box_color = GREEN
+play_hovered = False
 
 quit_box = Rect((0, 0), (400, 80))
 quit_box.midbottom = (WIDTH/2, (HEIGHT/2)+100)
 quit_box_color = RED
+quit_hovered = False
 
 music_box = Rect(((WIDTH-150,HEIGHT-150)), (32,32))
 
+music.play("halloween_title_music")
 
 def update():
     global tempo_animacao
@@ -67,6 +70,9 @@ def draw():
                 shadow=(2,2), scolor="#202020",
                 color="white"
                 )  
+    if (stage == "game"):
+        screen.clear()
+        music.stop()
 
 
 def on_mouse_down(pos, button):
@@ -77,24 +83,44 @@ def on_mouse_down(pos, button):
         if (button == mouse.LEFT):
             if (play_box.collidepoint(pos)):
                 print("game")
+                if is_music_on:
+                    sounds.click_a.play()
                 stage = "game"
-            elif (quit_box.collidepoint(pos)):
+            if (quit_box.collidepoint(pos)):
                 print("exit")
+                if is_music_on:
+                    sounds.click_a.play()
                 exit()
-            elif (music_box.collidepoint(pos)):
+            if (music_box.collidepoint(pos)):
                 if (is_music_on):
+                    if is_music_on:
+                        sounds.switch_a.play()
                     is_music_on = False
+                    music.pause()
                 else:
+                    sounds.switch_a.play()
                     is_music_on = True
+                    music.unpause()
 
 
 def on_mouse_move(pos):
-    global play_box_color, quit_box_color
+    global play_box_color, quit_box_color, play_hovered, quit_hovered
     if (stage == "menu"):
         if (play_box.collidepoint(pos)):
             play_box_color = DARK_GREEN
-        elif (quit_box.collidepoint(pos)):
-            quit_box_color = DARK_RED
+            if not play_hovered:
+                if is_music_on:
+                    sounds.click_a.play()
+                play_hovered = True
         else:
             play_box_color = GREEN
+            play_hovered = False
+        if (quit_box.collidepoint(pos)):
+            quit_box_color = DARK_RED
+            if not quit_hovered:
+                if is_music_on:
+                    sounds.click_a.play()
+                quit_hovered = True
+        else:
             quit_box_color = RED
+            quit_hovered = False
