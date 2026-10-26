@@ -36,6 +36,8 @@ class Zombie(Actor):
                 "zombie/walk/zombie_walk1_left",
                 "zombie/walk/zombie_walk2_left",
             ],
+            "jump_right": ["zombie/jump/zombie_jump"],
+            "jump_left": ["zombie/jump/zombie_jump_left"],
         }
 
         self.vel_y = 0
@@ -50,13 +52,17 @@ class Zombie(Actor):
             self.frame_index = 0
             self.anim_timer = 0
             self.apply_current_frame()
-
-        self.set_state("walk")
+        if self.on_ground == True:
+            self.set_state("walk")
 
     def jump(self):
         if self.on_ground:
             self.vel_y = self.jump_strength
             self.on_ground = False
+            self.frame_index = 0
+            self.anim_timer = 0
+            self.apply_current_frame()
+            self.set_state("jump")
 
     def update_physics(self, tiles):
         self.vel_y += self.gravity

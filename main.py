@@ -62,10 +62,12 @@ def update(dt):
             walking = True
         if keyboard.up:
             player.jump()
-        if not walking:
+        if not walking and player.on_ground:
             player.set_state("idle")
-        else:
+        if walking and player.on_ground:
             player.set_state("walk")
+        if not player.on_ground:
+            player.set_state("jump")
 
         player.update_animation(dt)
         player.update_physics(tiles)
