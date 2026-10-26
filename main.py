@@ -122,17 +122,41 @@ def draw():
         )
     if stage == "running":
         screen.blit("level/skyboxnight.png", (0, 0))
+        if level == 0:
+            screen.blit(
+                "level/keyboard_arrows_horizontal.png", (WIDTH / 4, HEIGHT / 4)
+            )
+            screen.draw.text(
+                "Movimentar!",
+                fontname="kenneyfuture.ttf",
+                fontsize=20,
+                color="white",
+                midbottom=(WIDTH / 4 + 40, HEIGHT / 4 + 100),
+            )
+            screen.blit(
+                "level/keyboard_arrows_up.png", (WIDTH / 2, HEIGHT / 4)
+            )
+            screen.draw.text(
+                "Pular!",
+                fontname="kenneyfuture.ttf",
+                fontsize=20,
+                color="white",
+                midbottom=(WIDTH / 2 + 40, HEIGHT / 4 + 100),
+            )
         # mostrar teclas para se mover
-        tiles, player = build_fase(level)
+        tiles, player, enemies = build_fase(level)
         player.draw()
         for tile in tiles:
             tile["actor"].draw()
+        for enemy in enemies:
+            enemy.draw()
 
 
 def run_game():
     global stage
     stage = "running"
-    music.play("halloween_level_music")
+    if is_music_on:
+        music.play("halloween_level_music")
 
 
 def on_mouse_down(pos, button):

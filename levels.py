@@ -6,8 +6,13 @@ TILE_MAP = {
     "p": {"image": "zombie/zombie_idle.png"},
     "#": {"image": "tiles/purplestonemid.png"},
     "*": {"image": "tiles/stonecenter.png"},
+    "b": {"image": "tiles/box.png"},
+    "e": {"image": "enemies/slime/slimegreen.png"},
+    "f": {"image": "tiles/signexit.png"},
+    "c": {"image": "itens/coingold.png"},
 }
 player = None
+enemies = []
 
 
 def build_fase(level):
@@ -22,9 +27,9 @@ def build_fase(level):
             "                   ",
             "                   ",
             "                   ",
-            "                   ",
-            "                   ",
-            "p                  ",
+            "         c         ",
+            "       c b         ",
+            "p      b b    e  f ",
             "###################",
             "*******************",
         ]
@@ -44,10 +49,16 @@ def build_fase(level):
                         tile_info["image"], midbottom=(center_x, center_y)
                     )
                     player.anchor = ("center", "bottom")
+                elif col == "e":
+                    enemy = Actor(
+                        tile_info["image"], midbottom=(center_x, center_y)
+                    )
+                    enemy.anchor = ("center", "bottom")
+                    enemies.append(enemy)
                 else:
                     tile = {
                         "actor": Actor(tile_info["image"], topleft=(x, y)),
                     }
                     tiles.append(tile)
 
-    return tiles, player
+    return tiles, player, enemies
