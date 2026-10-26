@@ -1,5 +1,6 @@
 import math
 from pgzero.builtins import Rect
+from levels import build_fase
 
 # Imagem de background do menu de título fornecida por:
 # https://www.magnific.com/free-vector/flat-background-halloween-season_65581192.htm#fromView=search&page=1&position=4&uuid=1c3c5604-a239-43b6-b1a1-8816005d31ef&track=ais_hybrid&query=Halloween+graveyard+background
@@ -8,7 +9,9 @@ from pgzero.builtins import Rect
 
 WIDTH = 1280
 HEIGHT = 720
+
 TITLE = "Crazy Halloween"
+
 RED = 200, 0, 0
 DARK_RED = 160, 0, 0
 GREEN = 0, 200, 0
@@ -19,6 +22,8 @@ stage = "menu"
 is_music_on = True
 
 tempo_animacao = 0
+
+level = 0
 
 play_box = Rect((0, 0), (400, 80))
 play_box.midbottom = (WIDTH / 2, HEIGHT / 2)
@@ -116,12 +121,18 @@ def draw():
             align="center",
         )
     if stage == "running":
-        music.stop()
+        screen.blit("level/skyboxnight.png", (0, 0))
+        # mostrar teclas para se mover
+        tiles, player = build_fase(level)
+        player.draw()
+        for tile in tiles:
+            tile["actor"].draw()
 
 
 def run_game():
     global stage
     stage = "running"
+    music.play("halloween_level_music")
 
 
 def on_mouse_down(pos, button):
