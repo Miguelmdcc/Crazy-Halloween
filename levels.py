@@ -5,15 +5,15 @@ from enemy import Enemy
 TILE_SIZE = 70
 
 TILE_MAP = {
-    "p": {"image": "zombie/idle/zombie_stand.png"},
-    "#": {"image": "tiles/purplestonemid.png"},
-    "*": {"image": "tiles/stonecenter.png"},
-    "b": {"image": "tiles/box.png"},
-    "f": {"image": "tiles/signexit.png"},
-    "s": {"image": "enemies/slime/slimegreen1.png"},
-    "g": {"image": "enemies/ghost/ghost1.png"},
-    "m": {"image": "enemies/bat/bat1.png"},
-    "c": {"image": "itens/coingold.png"},
+    "p": {"image": "zombie/idle/zombie_stand"},
+    "#": {"image": "tiles/purplestonemid"},
+    "*": {"image": "tiles/stonecenter"},
+    "b": {"image": "tiles/box"},
+    "f": {"image": "tiles/signexit"},
+    "s": {"image": "enemies/slime/slimegreen1"},
+    "g": {"image": "enemies/ghost/ghost1"},
+    "m": {"image": "enemies/bat/bat1"},
+    "c": {"image": "itens/coingold"},
 }
 
 
