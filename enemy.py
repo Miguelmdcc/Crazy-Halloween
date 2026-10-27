@@ -27,7 +27,6 @@ class Enemy(Actor):
 
         self.can_be_squished = "ghost" not in enemy_type
 
-        # --- NOVOS ATRIBUTOS DE MORTE ---
         self.is_dead = False
         self.dead_timer = 0
         self.should_remove = False
@@ -55,12 +54,11 @@ class Enemy(Actor):
             }
 
     def squish(self):
-        """Ativa o estado de esmagado e escolhe o sprite de morte conforme a direção."""
+        """Activates squished state and sets death sprite based on direction."""
         self.is_dead = True
         self.speed = 0
 
         side = "_dead_left" if self.direction == -1 else "_dead"
-
         self.image = f"enemies/{self.enemy_type}{side}"
 
     def update_enemy(self, dt):

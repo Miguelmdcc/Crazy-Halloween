@@ -62,7 +62,7 @@ class Zombie(Actor):
         self.on_ground = False
 
     def take_damage(self, enemy_x):
-        """Aplica o dano, ativa o sprite de hit e aplica o empurrão suave."""
+        """Applies damage, plays hit sprite, and applies smooth knockback."""
         if not self.is_hurt:
             self.life -= 1
             self.is_hurt = True
@@ -78,22 +78,22 @@ class Zombie(Actor):
             return
 
         self.x += self.x_speed * direction
-        if self.x >= 1280:
-            self.x = 1280
-        if self.x <= 0:
-            self.x = 0
+        self.x = max(0, min(1280, self.x))
+
         if self.direction != direction:
             self.direction = direction
             self.frame_index = 0
             self.anim_timer = 0
             self.apply_current_frame()
+
         if self.on_ground:
             self.set_state("walk")
+
         for tile in tiles:
             platform = tile["actor"]
             if self.colliderect(platform) and direction == 1:
                 self.right = platform.left
-            if self.colliderect(platform) and direction == -1:
+            elif self.colliderect(platform) and direction == -1:
                 self.left = platform.right
 
     def jump(self):
@@ -115,7 +115,6 @@ class Zombie(Actor):
 
         if self.is_hurt:
             self.x += self.knockback_x
-
             self.x = max(20, min(1260, self.x))
 
         self.on_ground = False

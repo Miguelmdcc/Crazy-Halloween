@@ -11,20 +11,19 @@ TILE_MAP = {
     "b": {"image": "tiles/box.png"},
     "f": {"image": "tiles/signexit.png"},
     "s": {"image": "enemies/slime/slimegreen1.png"},
-    "g": {"image": "enemies/ghost/ghost.png"},
+    "g": {"image": "enemies/ghost/ghost1.png"},
     "m": {"image": "enemies/bat/bat1.png"},
     "c": {"image": "itens/coingold.png"},
 }
 
 
-def build_fase(level):
+def build_level(level):
     player = None
     enemies = []
-    collectables = []
-    signexit = None
-    # x_tiles_count = 1280/70 = 19
-    # y_tiles_count = 720/70 = 11
+    collectibles = []
+    exit_sign = None
     tiles = []
+
     if level == 0:
         level_map = [
             "                   ",
@@ -39,7 +38,7 @@ def build_fase(level):
             "###################",
             "*******************",
         ]
-    if level == 1:
+    elif level == 1:
         level_map = [
             "                   ",
             "                   ",
@@ -53,7 +52,7 @@ def build_fase(level):
             "#########  ########",
             "*********  ********",
         ]
-    if level == 2:
+    elif level == 2:
         level_map = [
             "                   ",
             "                   ",
@@ -76,7 +75,7 @@ def build_fase(level):
                 tile_info = TILE_MAP[col]
 
                 center_x = x + (TILE_SIZE / 2)
-                center_y = y + (TILE_SIZE)
+                center_y = y + TILE_SIZE
 
                 if col == "p":
                     player = Zombie(
@@ -95,7 +94,7 @@ def build_fase(level):
                         "ghost/ghost",
                         tile_info["image"],
                         patrol_range=140,
-                        num_frames=1,
+                        num_frames=2,
                         midbottom=(center_x, center_y),
                     )
                     enemies.append(ghost)
@@ -109,13 +108,13 @@ def build_fase(level):
                     enemies.append(bat)
                 elif col == "c":
                     coin = Actor(tile_info["image"], topleft=(x, y))
-                    collectables.append(coin)
+                    collectibles.append(coin)
                 elif col == "f":
-                    signexit = Actor(tile_info["image"], topleft=(x, y))
+                    exit_sign = Actor(tile_info["image"], topleft=(x, y))
                 else:
                     tile = {
                         "actor": Actor(tile_info["image"], topleft=(x, y)),
                     }
                     tiles.append(tile)
 
-    return tiles, player, enemies, collectables, signexit
+    return tiles, player, enemies, collectibles, exit_sign

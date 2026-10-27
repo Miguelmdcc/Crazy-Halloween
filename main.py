@@ -1,32 +1,22 @@
 import math
 from pgzero.builtins import Rect
-from levels import build_fase
+from levels import build_level
 from zombie import Zombie
-
-# Imagem de background do menu de título fornecida por:
-# https://www.magnific.com/free-vector/flat-background-halloween-season_65581192.htm#fromView=search&page=1&position=4&uuid=1c3c5604-a239-43b6-b1a1-8816005d31ef&track=ais_hybrid&query=Halloween+graveyard+background
-# Musicas utilizadas fornecidas por:
-# https://pixabay.com/music/search/halloween%20cartoon/
 
 WIDTH = 1280
 HEIGHT = 720
-
 TITLE = "Crazy Halloween"
 
-RED = 200, 0, 0
-DARK_RED = 160, 0, 0
-GREEN = 0, 200, 0
-DARK_GREEN = 0, 160, 0
-BLACK = 0, 0, 0
+RED = (200, 0, 0)
+DARK_RED = (160, 0, 0)
+GREEN = (0, 200, 0)
+DARK_GREEN = (0, 160, 0)
+BLACK = (0, 0, 0)
 
 stage = "menu"
 is_music_on = True
-
-tempo_animacao = 0
-
+animation_time = 0
 level = 0
-
-gravidade = 0.8
 
 play_box = Rect((0, 0), (400, 80))
 play_box.midbottom = (WIDTH / 2, HEIGHT / 2)
@@ -39,7 +29,6 @@ quit_box_color = RED
 quit_hovered = False
 
 title_box = Rect((0, 0), (910, 110))
-
 music_box = Rect(((WIDTH - 150, HEIGHT - 150)), (32, 32))
 
 music.play("halloween_title_music")
@@ -47,22 +36,30 @@ music.play("halloween_title_music")
 player = None
 tiles = []
 enemies = []
-collectables = []
-signexit = None
+collectibles = []
+exit_sign = None
 win = False
 
 
 def update(dt):
-    global tempo_animacao, win, level, player, tiles, enemies, collectables, signexit
-    tempo_animacao += 0.05
+    global animation_time, win, level, player, tiles, enemies, collectibles, exit_sign, stage
+
+    animation_time += 0.05
+
     if stage == "running" and player:
         walking = False
+
+        # Fall into gap check
         if player.top > HEIGHT:
             level = 0
-            tiles, player, enemies, collectables, signexit = build_fase(level)
+            tiles, player, enemies, collectibles, exit_sign = build_level(
+                level
+            )
             if is_music_on:
                 music.play("halloween_level_music")
             return
+
+        # Player inputs
         if keyboard.left and not win:
             player.walking(-1, tiles)
             walking = True
@@ -71,24 +68,30 @@ def update(dt):
             walking = True
         if keyboard.up and not win:
             player.jump()
+
+        # State updates
         if not walking and player.on_ground and not win:
             player.set_state("idle")
         if walking and player.on_ground and not win:
             player.set_state("walk")
         if not player.on_ground and not win:
             player.set_state("jump")
-        for coin in collectables[:]:
+
+        # Collectibles logic
+        for coin in collectibles[:]:
             if player.colliderect(coin):
                 player.coins += 1
                 if is_music_on:
                     sounds.coin.play()
-                collectables.remove(coin)
-        if not win and player.colliderect(signexit):
+                collectibles.remove(coin)
+
+        # Level exit logic
+        if not win and player.colliderect(exit_sign):
             win = True
             player.cheer()
             clock.schedule(up_level, 2)
-        for enemy in enemies:
-            enemy.update_enemy(dt)
+
+        # Enemies update and collision logic
         for enemy in enemies[:]:
             enemy.update_enemy(dt)
 
@@ -113,8 +116,8 @@ def update(dt):
 
                         if player.life <= 0:
                             level = 0
-                            tiles, player, enemies, collectables, signexit = (
-                                build_fase(level)
+                            tiles, player, enemies, collectibles, exit_sign = (
+                                build_level(level)
                             )
                             if is_music_on:
                                 music.play("halloween_level_music")
@@ -124,33 +127,35 @@ def update(dt):
 
 
 def up_level():
-    global level, stage, win, tiles, player, enemies, collectables, signexit
+    global level, stage, win, tiles, player, enemies, collectibles, exit_sign
+
     level += 1
-    if level == 1:
-        if is_music_on:
-            music.play("halloween_level_2_music")
-    if level == 2:
-        if is_music_on:
-            music.play("halloween_final_level_music")
+    if level == 1 and is_music_on:
+        music.play("halloween_level_2_music")
+    elif level == 2 and is_music_on:
+        music.play("halloween_final_level_music")
+
     if level > 2:
-        stage = "fim"
+        stage = "end"
         level = 0
         win = False
     else:
-        coins = player.coins
-        tiles, player, enemies, collectables, signexit = build_fase(level)
-        player.coins = coins
+        saved_coins = player.coins
+        tiles, player, enemies, collectibles, exit_sign = build_level(level)
+        player.coins = saved_coins
         win = False
 
 
 def draw():
     screen.clear()
+
     if stage == "menu":
         screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
-        flutuacao_y = math.sin(tempo_animacao) * 10
+        y_float = math.sin(animation_time) * 10
+
         screen.draw.text(
             "Crazy Halloween",
-            midbottom=(WIDTH / 2, 250 + flutuacao_y),
+            midbottom=(WIDTH / 2, 250 + y_float),
             fontname="creepyhouse.otf",
             fontsize=120,
             shadow=(2, 2),
@@ -159,7 +164,7 @@ def draw():
             gcolor="orange",
             align="center",
         )
-        title_box.midbottom = (WIDTH / 2, 250 + flutuacao_y)
+        title_box.midbottom = (WIDTH / 2, 250 + y_float)
 
         screen.draw.filled_rect(play_box, play_box_color)
         screen.draw.rect(play_box, BLACK)
@@ -169,45 +174,37 @@ def draw():
             fontname="kenneyfuture.ttf",
             color="black",
         )
+
         screen.draw.filled_rect(quit_box, quit_box_color)
         screen.draw.rect(quit_box, BLACK)
         screen.draw.textbox(
             "Sair", quit_box, fontname="kenneyfuture.ttf", color="black"
         )
-        if is_music_on:
-            screen.blit(
-                "title_screen/check_square_color_checkmark.png",
-                (WIDTH - 150, HEIGHT - 150),
-            )
-            screen.draw.text(
-                "Musica e Sons",
-                midbottom=(WIDTH - 135, HEIGHT - 90),
-                fontname="kenneyfuture.ttf",
-                fontsize=15,
-                shadow=(2, 2),
-                scolor="#202020",
-                color="white",
-            )
-        else:
-            screen.blit(
-                "title_screen/check_square_color.png",
-                (WIDTH - 150, HEIGHT - 150),
-            )
-            screen.draw.text(
-                "Musica e Sons",
-                midbottom=(WIDTH - 135, HEIGHT - 90),
-                fontname="kenneyfuture.ttf",
-                fontsize=15,
-                shadow=(2, 2),
-                scolor="#202020",
-                color="white",
-            )
-    if stage == "loading":
+
+        checkbox_img = (
+            "check_square_color_checkmark.png"
+            if is_music_on
+            else "check_square_color.png"
+        )
+        screen.blit(
+            f"title_screen/{checkbox_img}", (WIDTH - 150, HEIGHT - 150)
+        )
+        screen.draw.text(
+            "Musica e Sons",
+            midbottom=(WIDTH - 135, HEIGHT - 90),
+            fontname="kenneyfuture.ttf",
+            fontsize=15,
+            shadow=(2, 2),
+            scolor="#202020",
+            color="white",
+        )
+
+    elif stage == "loading":
         screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
-        flutuacao_y = math.sin(tempo_animacao) * 10
+        y_float = math.sin(animation_time) * 10
         screen.draw.text(
             "Saindo da tumba...",
-            midbottom=(WIDTH / 2, HEIGHT / 2 + flutuacao_y),
+            midbottom=(WIDTH / 2, HEIGHT / 2 + y_float),
             fontname="creepyhouse.otf",
             fontsize=120,
             shadow=(2, 2),
@@ -216,16 +213,20 @@ def draw():
             gcolor="orange",
             align="center",
         )
-    if stage == "running":
+
+    elif stage == "running":
         screen.blit("level/skyboxnight.png", (0, 0))
+
         if player.life == 2:
             screen.blit("hud/hud_heartfull", (20, 20))
-        if player.life == 1:
+        elif player.life == 1:
             screen.blit("hud/hud_hearthalf", (20, 20))
-        if player.life == 0:
+        elif player.life == 0:
             screen.blit("hud/hud_heartempty", (20, 20))
+
         screen.blit("hud/hud_coins", (20, 80))
         screen.blit(f"hud/hud_{player.coins}", (80, 85))
+
         if level == 0:
             screen.blit(
                 "level/keyboard_arrows_horizontal.png", (WIDTH / 4, HEIGHT / 4)
@@ -247,21 +248,24 @@ def draw():
                 color="white",
                 midbottom=(WIDTH / 2 + 40, HEIGHT / 4 + 100),
             )
+
         if player:
-            signexit.draw()
+            exit_sign.draw()
             player.draw()
             for tile in tiles:
                 tile["actor"].draw()
             for enemy in enemies:
                 enemy.draw()
-            for coin in collectables:
+            for coin in collectibles:
                 coin.draw()
-    if stage == "fim":
+
+    elif stage == "end":
         screen.blit("title_screen/bg_title_screen.jpg", (0, 0))
-        flutuacao_y = math.sin(tempo_animacao) * 10
+        y_float = math.sin(animation_time) * 10
+
         screen.draw.text(
             "De volta para a tumba...",
-            midbottom=(WIDTH / 2, 250 + flutuacao_y),
+            midbottom=(WIDTH / 2, 250 + y_float),
             fontname="creepyhouse.otf",
             fontsize=120,
             shadow=(2, 2),
@@ -270,7 +274,7 @@ def draw():
             gcolor="orange",
             align="center",
         )
-        title_box.midbottom = (WIDTH / 2, 250 + flutuacao_y)
+        title_box.midbottom = (WIDTH / 2, 250 + y_float)
 
         screen.draw.filled_rect(play_box, play_box_color)
         screen.draw.rect(play_box, BLACK)
@@ -280,44 +284,35 @@ def draw():
             fontname="kenneyfuture.ttf",
             color="black",
         )
+
         screen.draw.filled_rect(quit_box, quit_box_color)
         screen.draw.rect(quit_box, BLACK)
         screen.draw.textbox(
             "Sair", quit_box, fontname="kenneyfuture.ttf", color="black"
         )
-        if is_music_on:
-            screen.blit(
-                "title_screen/check_square_color_checkmark.png",
-                (WIDTH - 150, HEIGHT - 150),
-            )
-            screen.draw.text(
-                "Musica e Sons",
-                midbottom=(WIDTH - 135, HEIGHT - 90),
-                fontname="kenneyfuture.ttf",
-                fontsize=15,
-                shadow=(2, 2),
-                scolor="#202020",
-                color="white",
-            )
-        else:
-            screen.blit(
-                "title_screen/check_square_color.png",
-                (WIDTH - 150, HEIGHT - 150),
-            )
-            screen.draw.text(
-                "Musica e Sons",
-                midbottom=(WIDTH - 135, HEIGHT - 90),
-                fontname="kenneyfuture.ttf",
-                fontsize=15,
-                shadow=(2, 2),
-                scolor="#202020",
-                color="white",
-            )
+
+        checkbox_img = (
+            "check_square_color_checkmark.png"
+            if is_music_on
+            else "check_square_color.png"
+        )
+        screen.blit(
+            f"title_screen/{checkbox_img}", (WIDTH - 150, HEIGHT - 150)
+        )
+        screen.draw.text(
+            "Musica e Sons",
+            midbottom=(WIDTH - 135, HEIGHT - 90),
+            fontname="kenneyfuture.ttf",
+            fontsize=15,
+            shadow=(2, 2),
+            scolor="#202020",
+            color="white",
+        )
 
 
 def run_game():
-    global stage, tiles, player, enemies, collectables, signexit
-    tiles, player, enemies, collectables, signexit = build_fase(level)
+    global stage, tiles, player, enemies, collectibles, exit_sign
+    tiles, player, enemies, collectibles, exit_sign = build_level(level)
     stage = "running"
     if is_music_on:
         music.play("halloween_level_music")
@@ -326,37 +321,36 @@ def run_game():
 def on_mouse_down(pos, button):
     global stage, is_music_on
 
-    if stage == "menu" or stage == "fim":
-        if button == mouse.LEFT:
-            if play_box.collidepoint(pos):
-                print("game")
-                if is_music_on:
-                    sounds.click_a.play()
-                stage = "loading"
-                clock.schedule(run_game, 3)
-            if quit_box.collidepoint(pos):
-                print("exit")
-                if is_music_on:
-                    sounds.click_a.play()
-                exit()
-            if music_box.collidepoint(pos):
-                if is_music_on:
-                    if is_music_on:
-                        sounds.switch_a.play()
-                    is_music_on = False
-                    music.pause()
-                else:
-                    sounds.switch_a.play()
-                    is_music_on = True
-                    music.unpause()
-            if title_box.collidepoint(pos):
-                if is_music_on:
-                    sounds.crazyhalloween.play()
+    if stage in ("menu", "end") and button == mouse.LEFT:
+        if play_box.collidepoint(pos):
+            if is_music_on:
+                sounds.click_a.play()
+            stage = "loading"
+            clock.schedule(run_game, 3)
+
+        elif quit_box.collidepoint(pos):
+            if is_music_on:
+                sounds.click_a.play()
+            exit()
+
+        elif music_box.collidepoint(pos):
+            if is_music_on:
+                sounds.switch_a.play()
+                is_music_on = False
+                music.pause()
+            else:
+                sounds.switch_a.play()
+                is_music_on = True
+                music.unpause()
+
+        elif title_box.collidepoint(pos) and is_music_on:
+            sounds.crazyhalloween.play()
 
 
 def on_mouse_move(pos):
     global play_box_color, quit_box_color, play_hovered, quit_hovered
-    if stage == "menu" or stage == "fim":
+
+    if stage in ("menu", "end"):
         if play_box.collidepoint(pos):
             play_box_color = DARK_GREEN
             if not play_hovered:
@@ -366,6 +360,7 @@ def on_mouse_move(pos):
         else:
             play_box_color = GREEN
             play_hovered = False
+
         if quit_box.collidepoint(pos):
             quit_box_color = DARK_RED
             if not quit_hovered:
