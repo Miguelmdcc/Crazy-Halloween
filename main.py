@@ -53,10 +53,16 @@ win = False
 
 
 def update(dt):
-    global tempo_animacao, win
+    global tempo_animacao, win, level, player, tiles, enemies, collectables, signexit
     tempo_animacao += 0.05
     if stage == "running" and player:
         walking = False
+        if player.top > HEIGHT:
+            level = 0
+            tiles, player, enemies, collectables, signexit = build_fase(level)
+            if is_music_on:
+                music.play("halloween_level_music")
+            return
         if keyboard.left and not win:
             player.walking(-1, tiles)
             walking = True
@@ -74,11 +80,44 @@ def update(dt):
         for coin in collectables[:]:
             if player.colliderect(coin):
                 player.coins += 1
+                if is_music_on:
+                    sounds.coin.play()
                 collectables.remove(coin)
         if not win and player.colliderect(signexit):
             win = True
             player.cheer()
             clock.schedule(up_level, 2)
+        for enemy in enemies:
+            enemy.update_enemy(dt)
+        for enemy in enemies[:]:
+            enemy.update_enemy(dt)
+
+            if enemy.should_remove:
+                enemies.remove(enemy)
+                continue
+
+            if not win and not enemy.is_dead and player.colliderect(enemy):
+                is_falling = player.vel_y > 0
+                is_above = (player.bottom - player.vel_y) <= (enemy.top + 20)
+
+                if is_falling and is_above and enemy.can_be_squished:
+                    enemy.squish()
+                    player.vel_y = -12
+                    if is_music_on:
+                        sounds.hit.play()
+                else:
+                    if not player.is_hurt:
+                        player.take_damage(enemy.x)
+                        if is_music_on:
+                            sounds.switch_a.play()
+
+                        if player.life <= 0:
+                            level = 0
+                            tiles, player, enemies, collectables, signexit = (
+                                build_fase(level)
+                            )
+                            if is_music_on:
+                                music.play("halloween_level_music")
 
         player.update_animation(dt)
         player.update_physics(tiles)
@@ -88,9 +127,11 @@ def up_level():
     global level, stage, win, tiles, player, enemies, collectables, signexit
     level += 1
     if level == 1:
-        music.play("halloween_level_2_music")
+        if is_music_on:
+            music.play("halloween_level_2_music")
     if level == 2:
-        music.play("halloween_final_level_music")
+        if is_music_on:
+            music.play("halloween_final_level_music")
     if level > 2:
         stage = "fim"
         level = 0
@@ -180,7 +221,7 @@ def draw():
         if player.life == 2:
             screen.blit("hud/hud_heartfull", (20, 20))
         if player.life == 1:
-            screen.blit("hud/hud_hearhalf", (20, 20))
+            screen.blit("hud/hud_hearthalf", (20, 20))
         if player.life == 0:
             screen.blit("hud/hud_heartempty", (20, 20))
         screen.blit("hud/hud_coins", (20, 80))

@@ -1,5 +1,6 @@
 from pgzero.builtins import Actor
 from zombie import Zombie
+from enemy import Enemy
 
 TILE_SIZE = 70
 
@@ -9,9 +10,9 @@ TILE_MAP = {
     "*": {"image": "tiles/stonecenter.png"},
     "b": {"image": "tiles/box.png"},
     "f": {"image": "tiles/signexit.png"},
-    "s": {"image": "enemies/slime/slimegreen.png"},
+    "s": {"image": "enemies/slime/slimegreen1.png"},
     "g": {"image": "enemies/ghost/ghost.png"},
-    "m": {"image": "enemies/bat/bat.png"},
+    "m": {"image": "enemies/bat/bat1.png"},
     "c": {"image": "itens/coingold.png"},
 }
 
@@ -45,7 +46,7 @@ def build_fase(level):
             "                   ",
             "                   ",
             "                   ",
-            "     m          f  ",
+            "                f  ",
             "           c  ###  ",
             "        c  b       ",
             "p  cs  gb  b   c s ",
@@ -57,9 +58,9 @@ def build_fase(level):
             "                   ",
             "                   ",
             "     c   m         ",
-            " f   b     s       ",
+            " f   b   s         ",
             " #   #######    s  ",
-            "              ###  ",
+            "              #####",
             "             c     ",
             "        c ####     ",
             "p      gb          ",
@@ -82,22 +83,29 @@ def build_fase(level):
                         tile_info["image"], midbottom=(center_x, center_y)
                     )
                 elif col == "s":
-                    slime = Actor(
-                        tile_info["image"], midbottom=(center_x, center_y)
+                    slime = Enemy(
+                        "slime/slimegreen",
+                        tile_info["image"],
+                        patrol_range=100,
+                        midbottom=(center_x, center_y),
                     )
-                    slime.anchor = ("center", "bottom")
                     enemies.append(slime)
                 elif col == "g":
-                    ghost = Actor(
-                        tile_info["image"], midbottom=(center_x, center_y)
+                    ghost = Enemy(
+                        "ghost/ghost",
+                        tile_info["image"],
+                        patrol_range=140,
+                        num_frames=1,
+                        midbottom=(center_x, center_y),
                     )
-                    ghost.anchor = ("center", "bottom")
                     enemies.append(ghost)
                 elif col == "m":
-                    bat = Actor(
-                        tile_info["image"], midbottom=(center_x, center_y)
+                    bat = Enemy(
+                        "bat/bat",
+                        tile_info["image"],
+                        patrol_range=200,
+                        midbottom=(center_x, center_y),
                     )
-                    bat.anchor = ("center", "bottom")
                     enemies.append(bat)
                 elif col == "c":
                     coin = Actor(tile_info["image"], topleft=(x, y))

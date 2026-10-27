@@ -14,6 +14,9 @@ class Zombie(Actor):
         self.coins = 0
         self.life = 2
 
+        self.is_hurt = False
+        self.knockback_x = 0
+
         self.anim_speeds = {
             "idle": 0.30,
             "walk": 0.12,
@@ -49,6 +52,8 @@ class Zombie(Actor):
                 "zombie/cheer/zombie_cheer1_left",
                 "zombie/cheer/zombie_cheer2_left",
             ],
+            "hit_right": ["zombie/hit/zombie_hit"],
+            "hit_left": ["zombie/hit/zombie_hit_left"],
         }
 
         self.vel_y = 0
@@ -56,7 +61,22 @@ class Zombie(Actor):
         self.jump_strength = -16
         self.on_ground = False
 
+    def take_damage(self, enemy_x):
+        """Aplica o dano, ativa o sprite de hit e aplica o empurrão suave."""
+        if not self.is_hurt:
+            self.life -= 1
+            self.is_hurt = True
+            self.vel_y = -6
+
+            push_dir = -1 if enemy_x > self.x else 1
+            self.knockback_x = push_dir * 4
+
+            self.set_state("hit")
+
     def walking(self, direction, tiles):
+        if self.is_hurt:
+            return
+
         self.x += self.x_speed * direction
         if self.x >= 1280:
             self.x = 1280
@@ -67,7 +87,7 @@ class Zombie(Actor):
             self.frame_index = 0
             self.anim_timer = 0
             self.apply_current_frame()
-        if self.on_ground == True:
+        if self.on_ground:
             self.set_state("walk")
         for tile in tiles:
             platform = tile["actor"]
@@ -77,7 +97,7 @@ class Zombie(Actor):
                 self.left = platform.right
 
     def jump(self):
-        if self.on_ground:
+        if self.on_ground and not self.is_hurt:
             self.vel_y = self.jump_strength
             self.on_ground = False
             self.frame_index = 0
@@ -92,6 +112,12 @@ class Zombie(Actor):
     def update_physics(self, tiles):
         self.vel_y += self.gravity
         self.y += self.vel_y
+
+        if self.is_hurt:
+            self.x += self.knockback_x
+
+            self.x = max(20, min(1260, self.x))
+
         self.on_ground = False
 
         for tile in tiles:
@@ -101,6 +127,8 @@ class Zombie(Actor):
                     self.bottom = platform.top
                     self.vel_y = 0
                     self.on_ground = True
+                    self.is_hurt = False
+                    self.knockback_x = 0
                 elif self.vel_y < 0:
                     self.top = platform.bottom
                     self.vel_y = 0
@@ -113,7 +141,6 @@ class Zombie(Actor):
             self.apply_current_frame()
 
     def apply_current_frame(self):
-        """Força a atualização imediata do sprite na tela."""
         side = "right" if self.direction == 1 else "left"
         anim_key = f"{self.state}_{side}"
         frames = self.animations[anim_key]
