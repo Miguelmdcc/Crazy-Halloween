@@ -53,7 +53,7 @@ class Zombie(Actor):
 
         self.vel_y = 0
         self.gravity = 0.8
-        self.jump_strength = -14
+        self.jump_strength = -16
         self.on_ground = False
 
     def walking(self, direction, tiles):

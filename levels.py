@@ -8,17 +8,19 @@ TILE_MAP = {
     "#": {"image": "tiles/purplestonemid.png"},
     "*": {"image": "tiles/stonecenter.png"},
     "b": {"image": "tiles/box.png"},
-    "e": {"image": "enemies/slime/slimegreen.png"},
     "f": {"image": "tiles/signexit.png"},
+    "s": {"image": "enemies/slime/slimegreen.png"},
+    "g": {"image": "enemies/ghost/ghost.png"},
+    "m": {"image": "enemies/bat/bat.png"},
     "c": {"image": "itens/coingold.png"},
 }
-player = None
-enemies = []
-collectables = []
-signexit = None
 
 
 def build_fase(level):
+    player = None
+    enemies = []
+    collectables = []
+    signexit = None
     # x_tiles_count = 1280/70 = 19
     # y_tiles_count = 720/70 = 11
     tiles = []
@@ -32,9 +34,37 @@ def build_fase(level):
             "                   ",
             "          c        ",
             "       c  b        ",
-            "p      b  b   e  f ",
+            "p      b  b   s  f ",
             "###################",
             "*******************",
+        ]
+    if level == 1:
+        level_map = [
+            "                   ",
+            "                   ",
+            "                   ",
+            "                   ",
+            "                   ",
+            "     m          f  ",
+            "           c  ###  ",
+            "        c  b       ",
+            "p  cs  gb  b   c s ",
+            "#########  ########",
+            "*********  ********",
+        ]
+    if level == 2:
+        level_map = [
+            "                   ",
+            "                   ",
+            "     c   m         ",
+            " f   b     s       ",
+            " #   #######    s  ",
+            "              ###  ",
+            "             c     ",
+            "        c ####     ",
+            "p      gb          ",
+            "###  ##############",
+            "***  **************",
         ]
 
     for line_idx, line in enumerate(level_map):
@@ -51,12 +81,24 @@ def build_fase(level):
                     player = Zombie(
                         tile_info["image"], midbottom=(center_x, center_y)
                     )
-                elif col == "e":
-                    enemy = Actor(
+                elif col == "s":
+                    slime = Actor(
                         tile_info["image"], midbottom=(center_x, center_y)
                     )
-                    enemy.anchor = ("center", "bottom")
-                    enemies.append(enemy)
+                    slime.anchor = ("center", "bottom")
+                    enemies.append(slime)
+                elif col == "g":
+                    ghost = Actor(
+                        tile_info["image"], midbottom=(center_x, center_y)
+                    )
+                    ghost.anchor = ("center", "bottom")
+                    enemies.append(ghost)
+                elif col == "m":
+                    bat = Actor(
+                        tile_info["image"], midbottom=(center_x, center_y)
+                    )
+                    bat.anchor = ("center", "bottom")
+                    enemies.append(bat)
                 elif col == "c":
                     coin = Actor(tile_info["image"], topleft=(x, y))
                     collectables.append(coin)
