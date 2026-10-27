@@ -54,7 +54,6 @@ class Enemy(Actor):
             }
 
     def squish(self):
-        """Activates squished state and sets death sprite based on direction."""
         self.is_dead = True
         self.speed = 0
 

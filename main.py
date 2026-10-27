@@ -1,7 +1,6 @@
 import math
 from pgzero.builtins import Rect
 from levels import build_level
-from zombie import Zombie
 
 WIDTH = 1280
 HEIGHT = 720
