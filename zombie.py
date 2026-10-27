@@ -11,6 +11,9 @@ class Zombie(Actor):
         self.direction = 1
         self.state = "idle"
 
+        self.coins = 0
+        self.life = 2
+
         self.anim_speeds = {
             "idle": 0.30,
             "walk": 0.12,
@@ -38,6 +41,14 @@ class Zombie(Actor):
             ],
             "jump_right": ["zombie/jump/zombie_jump"],
             "jump_left": ["zombie/jump/zombie_jump_left"],
+            "cheer_right": [
+                "zombie/cheer/zombie_cheer1",
+                "zombie/cheer/zombie_cheer2",
+            ],
+            "cheer_left": [
+                "zombie/cheer/zombie_cheer1_left",
+                "zombie/cheer/zombie_cheer2_left",
+            ],
         }
 
         self.vel_y = 0
@@ -45,7 +56,7 @@ class Zombie(Actor):
         self.jump_strength = -14
         self.on_ground = False
 
-    def walking(self, direction):
+    def walking(self, direction, tiles):
         self.x += self.x_speed * direction
         if self.x >= 1280:
             self.x = 1280
@@ -58,6 +69,12 @@ class Zombie(Actor):
             self.apply_current_frame()
         if self.on_ground == True:
             self.set_state("walk")
+        for tile in tiles:
+            platform = tile["actor"]
+            if self.colliderect(platform) and direction == 1:
+                self.right = platform.left
+            if self.colliderect(platform) and direction == -1:
+                self.left = platform.right
 
     def jump(self):
         if self.on_ground:
@@ -67,6 +84,10 @@ class Zombie(Actor):
             self.anim_timer = 0
             self.apply_current_frame()
             self.set_state("jump")
+
+    def cheer(self):
+        self.set_state("cheer")
+        self.apply_current_frame()
 
     def update_physics(self, tiles):
         self.vel_y += self.gravity

@@ -49,30 +49,46 @@ tiles = []
 enemies = []
 collectables = []
 signexit = None
+win = False
 
 
 def update(dt):
-    global tempo_animacao
+    global tempo_animacao, win
     tempo_animacao += 0.05
     if stage == "running" and player:
         walking = False
-        if keyboard.left:
-            player.walking(-1)
+        if keyboard.left and not win:
+            player.walking(-1, tiles)
             walking = True
-        if keyboard.right:
-            player.walking(1)
+        if keyboard.right and not win:
+            player.walking(1, tiles)
             walking = True
-        if keyboard.up:
+        if keyboard.up and not win:
             player.jump()
-        if not walking and player.on_ground:
+        if not walking and player.on_ground and not win:
             player.set_state("idle")
-        if walking and player.on_ground:
+        if walking and player.on_ground and not win:
             player.set_state("walk")
-        if not player.on_ground:
+        if not player.on_ground and not win:
             player.set_state("jump")
+        for coin in collectables[:]:
+            if player.colliderect(coin):
+                player.coins += 1
+                collectables.remove(coin)
+        if player.colliderect(signexit):
+            win = True
+            player.cheer()
+            clock.schedule(up_level, 2)
 
         player.update_animation(dt)
         player.update_physics(tiles)
+
+
+def up_level():
+    global level, stage
+    level += 1
+    if level > 2:
+        stage = "fim"
 
 
 def draw():
@@ -150,6 +166,14 @@ def draw():
         )
     if stage == "running":
         screen.blit("level/skyboxnight.png", (0, 0))
+        if player.life == 2:
+            screen.blit("hud/hud_heartfull", (20, 20))
+        if player.life == 1:
+            screen.blit("hud/hud_hearhalf", (20, 20))
+        if player.life == 0:
+            screen.blit("hud/hud_heartempty", (20, 20))
+        screen.blit("hud/hud_coins", (20, 80))
+        screen.blit(f"hud/hud_{player.coins}", (80, 85))
         if level == 0:
             screen.blit(
                 "level/keyboard_arrows_horizontal.png", (WIDTH / 4, HEIGHT / 4)
@@ -172,8 +196,8 @@ def draw():
                 midbottom=(WIDTH / 2 + 40, HEIGHT / 4 + 100),
             )
         if player:
-            player.draw()
             signexit.draw()
+            player.draw()
             for tile in tiles:
                 tile["actor"].draw()
             for enemy in enemies:
