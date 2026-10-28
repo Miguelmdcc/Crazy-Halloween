@@ -168,7 +168,7 @@ def draw():
         screen.draw.filled_rect(play_box, play_box_color)
         screen.draw.rect(play_box, BLACK)
         screen.draw.textbox(
-            "Começar Aventura!",
+            "Iniciar Aventura!",
             play_box,
             fontname="kenneyfuture.ttf",
             color="black",
